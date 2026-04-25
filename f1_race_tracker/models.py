@@ -1,27 +1,24 @@
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# Create connection to SQLite database
-# This will create a file called database.db in the project folder
+# Connect to the SQLite database file
 engine = create_engine("sqlite:///database.db", echo=True)
 
-# Base class for all database models (tables)
+# Base class for database models
 Base = declarative_base()
 
-# Define the Race table
+
+# Race table
 class Race(Base):
-    __tablename__ = "races"  # Name of the table in the database
+    __tablename__ = "races"
 
-    # Primary key (unique identifier for each race)
     id = Column(Integer, primary_key=True)
-
-    # Basic race information
     name = Column(String)
     location = Column(String)
     date = Column(String)
 
-# Create a session to interact with the database
-# This is used to add, update, delete data later
+
+# Session used to interact with the database
 Session = sessionmaker(bind=engine)
 session = Session()
 
