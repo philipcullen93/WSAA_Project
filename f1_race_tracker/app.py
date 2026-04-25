@@ -1,21 +1,17 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from models import session, Race
+from models import session, Race, Result
 
-# Create the Flask app
 app = Flask(__name__)
-
-# Allow the frontend to communicate with this API later
 CORS(app)
 
-
-# Basic homepage route to confirm the server is running
 @app.route("/")
 def home():
     return "F1 Race Tracker API is running"
 
 
-# GET route to return all races
+# RACE ROUTES
+
 @app.route("/races", methods=["GET"])
 def get_races():
     races = session.query(Race).all()
@@ -32,7 +28,6 @@ def get_races():
     return jsonify(race_list)
 
 
-# POST route to add a new race
 @app.route("/races", methods=["POST"])
 def create_race():
     data = request.get_json()
@@ -49,7 +44,6 @@ def create_race():
     return jsonify({"message": "Race created successfully"}), 201
 
 
-# PUT route to update an existing race by ID
 @app.route("/races/<int:id>", methods=["PUT"])
 def update_race(id):
     race = session.query(Race).filter_by(id=id).first()
@@ -68,7 +62,6 @@ def update_race(id):
     return jsonify({"message": "Race updated successfully"})
 
 
-# DELETE route to remove an existing race by ID
 @app.route("/races/<int:id>", methods=["DELETE"])
 def delete_race(id):
     race = session.query(Race).filter_by(id=id).first()
@@ -82,6 +75,47 @@ def delete_race(id):
     return jsonify({"message": "Race deleted successfully"})
 
 
-# This must stay at the bottom of the file
+# RESULT ROUTES
+
+@app.route("/results", methods=["GET"])
+def get_results():
+    results = session.query(Result).all()
+
+    result_list = []
+    for result in results:
+        result_list.append({
+            "id": result.id,
+            "race_id": result.race_id,
+            "driver_name": result.driver_name,
+            "position": result.position,
+            "points": result.points
+        })
+
+    return jsonify(result_list)
+
+
+@app.route("/results", methods=["POST"])
+def create_result():
+    data = request.get_json()
+
+    race = session.query(Race).filter_by(id=data["race_id"]).first()
+
+    if race is None:
+        return jsonify({"error": "Race not found"}), 404
+
+    new_result = Result(
+        race_id=data["race_id"],
+        driver_name=data["driver_name"],
+        position=data["position"],
+        points=data["points"]
+    )
+
+    session.add(new_result)
+    session.commit()
+
+    return jsonify({"message": "Result created successfully"}), 201
+
+
+# This must stay at the very bottom of the file
 if __name__ == "__main__":
     app.run(debug=True)
