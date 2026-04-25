@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>F1 Race Tracker</title>
+</head>
+<body>
+
+    <h1>F1 Race Tracker</h1>
+
+    <!-- Form to add a new race -->
+    <h2>Add Race</h2>
+    <form id="raceForm">
+        <input type="text" id="name" placeholder="Race Name" required>
+        <input type="text" id="location" placeholder="Location" required>
+        <input type="text" id="date" placeholder="Date" required>
+        <button type="submit">Add Race</button>
+    </form>
+
+    <!-- Display races -->
+    <h2>Races</h2>
+    <ul id="raceList"></ul>
+
+    <!-- Link to JavaScript -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
