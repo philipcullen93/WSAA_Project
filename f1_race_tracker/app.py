@@ -115,6 +115,44 @@ def create_result():
 
     return jsonify({"message": "Result created successfully"}), 201
 
+@app.route("/results/<int:id>", methods=["PUT"])
+def update_result(id):
+    # Find the result with the matching ID
+    result = session.query(Result).filter_by(id=id).first()
+
+    if result is None:
+        return jsonify({"error": "Result not found"}), 404
+
+    data = request.get_json()
+
+    # Check the race exists before assigning the result to it
+    race = session.query(Race).filter_by(id=data["race_id"]).first()
+
+    if race is None:
+        return jsonify({"error": "Race not found"}), 404
+
+    result.race_id = data["race_id"]
+    result.driver_name = data["driver_name"]
+    result.position = data["position"]
+    result.points = data["points"]
+
+    session.commit()
+
+    return jsonify({"message": "Result updated successfully"})
+
+
+@app.route("/results/<int:id>", methods=["DELETE"])
+def delete_result(id):
+    # Find the result with the matching ID
+    result = session.query(Result).filter_by(id=id).first()
+
+    if result is None:
+        return jsonify({"error": "Result not found"}), 404
+
+    session.delete(result)
+    session.commit()
+
+    return jsonify({"message": "Result deleted successfully"})
 
 # This must stay at the very bottom of the file
 if __name__ == "__main__":
