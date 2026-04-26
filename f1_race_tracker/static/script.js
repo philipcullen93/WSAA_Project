@@ -17,8 +17,40 @@ function loadRaces() {
             races.forEach(race => {
                 const listItem = document.createElement("li");
 
-                listItem.textContent = `${race.name} - ${race.location} - ${race.date}`;
+                // Create text showing race details
+                const raceText = document.createElement("span");
+                raceText.textContent = `${race.name} - ${race.location} - ${race.date}`;
 
+                // Create a delete button for each race
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+
+                // When clicked, send a DELETE request to the API
+                deleteButton.onclick = function() {
+                    fetch(`${racesApiUrl}/${race.id}`, {
+                        method: "DELETE"
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+
+                        // Reload the list so the deleted race disappears
+                        loadRaces();
+                    })
+                    .catch(error => {
+                        console.error("Error deleting race:", error);
+                    });
+                };
+
+                // Add the text and button to the list item
+                listItem.appendChild(raceText);
+
+                // Add a space between text and button
+                listItem.appendChild(document.createTextNode(" "));
+
+                listItem.appendChild(deleteButton);
+
+                // Add the list item to the page
                 raceList.appendChild(listItem);
             });
         })
@@ -26,41 +58,6 @@ function loadRaces() {
             console.error("Error loading races:", error);
         });
 }
-
-// Handle form submission for adding a new race
-raceForm.addEventListener("submit", function(event) {
-    // Stop the page from refreshing
-    event.preventDefault();
-
-    // Get values from the input fields
-    const raceData = {
-        name: document.getElementById("name").value,
-        location: document.getElementById("location").value,
-        date: document.getElementById("date").value
-    };
-
-    // Send the new race data to the Flask API
-    fetch(racesApiUrl, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(raceData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-
-        // Clear the form after adding the race
-        raceForm.reset();
-
-        // Reload the list so the new race appears
-        loadRaces();
-    })
-    .catch(error => {
-        console.error("Error adding race:", error);
-    });
-});
 
 // Load races as soon as the page opens
 loadRaces();
