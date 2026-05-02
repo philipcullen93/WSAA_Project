@@ -20,6 +20,26 @@
     <h2>Races</h2>
     <ul id="raceList"></ul>
 
+    <hr>
+
+    <!-- Form to add a new result -->
+    <h2>Add Race Result</h2>
+    <form id="resultForm">
+        <select id="raceId" required>
+            <option value="">Select Race</option>
+        </select>
+
+        <input type="text" id="driverName" placeholder="Driver Name" required>
+        <input type="number" id="position" placeholder="Position" min="1" required>
+        <input type="number" id="points" placeholder="Points" min="0" required>
+
+        <button type="submit">Add Result</button>
+    </form>
+
+    <!-- Display results -->
+    <h2>Race Results</h2>
+    <ul id="resultList"></ul>
+
     <!-- Link to JavaScript -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
