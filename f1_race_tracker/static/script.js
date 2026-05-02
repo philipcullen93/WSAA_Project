@@ -85,37 +85,49 @@ function loadRaces() {
         });
 }
 
-
-// Fetch all race results from the Flask API and group them by race
 function loadResults() {
     Promise.all([
         fetch(resultsApiUrl).then(response => response.json()),
         fetch(racesApiUrl).then(response => response.json())
     ])
     .then(([results, races]) => {
-        // Clear existing results before rebuilding list
+
         resultList.innerHTML = "";
 
+        // Must be inside here
         races.forEach(race => {
-            // Get all results linked to the current race
+
             const raceResults = results.filter(result => result.race_id === race.id);
 
-            // Only display races that have at least one result
             if (raceResults.length > 0) {
-                // Create race title above its results
+
                 const raceHeader = document.createElement("h3");
                 raceHeader.textContent = race.name;
                 resultList.appendChild(raceHeader);
 
-                // Create a nested list for this race's results
                 const raceResultList = document.createElement("ul");
 
                 raceResults.forEach(result => {
                     const listItem = document.createElement("li");
 
-                    // Display result details under the race title
-                    listItem.textContent =
+                    const resultText = document.createElement("span");
+                    resultText.textContent =
                         `${result.driver_name} - Position ${result.position} - ${result.points} points`;
+
+                    const deleteButton = document.createElement("button");
+                    deleteButton.textContent = "Delete";
+
+                    deleteButton.onclick = function() {
+                        fetch(`${resultsApiUrl}/${result.id}`, {
+                            method: "DELETE"
+                        })
+                        .then(response => response.json())
+                        .then(() => loadResults());
+                    };
+
+                    listItem.appendChild(resultText);
+                    listItem.appendChild(document.createTextNode(" "));
+                    listItem.appendChild(deleteButton);
 
                     raceResultList.appendChild(listItem);
                 });
@@ -123,6 +135,7 @@ function loadResults() {
                 resultList.appendChild(raceResultList);
             }
         });
+
     })
     .catch(error => {
         console.error("Error loading results:", error);
