@@ -31,3 +31,32 @@ select {
     margin: 5px;
     width: 180px;
 }
+
+button {
+    padding: 8px 12px;
+    margin: 5px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #222;
+    color: white;
+}
+
+button:hover {
+    background-color: #d71920;
+}
+
+ul {
+    background: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+h3 {
+    margin-top: 20px;
+    color: #333;
+}
