@@ -11,6 +11,10 @@ const resultForm = document.getElementById("resultForm");
 const resultList = document.getElementById("resultList");
 const raceIdDropdown = document.getElementById("raceId");
 
+// View Race Results from Dropdown Menu
+const viewRaceIdDropdown = document.getElementById("viewRaceId");
+const viewResultsButton = document.getElementById("viewResultsButton");
+const showAllResultsButton = document.getElementById("showAllResultsButton");
 
 // Fetch all races from the Flask API and display them
 function loadRaces() {
@@ -22,6 +26,7 @@ function loadRaces() {
 
             // Clear and rebuild dropdown used when adding race results
             raceIdDropdown.innerHTML = '<option value="">Select Race</option>';
+            viewRaceIdDropdown.innerHTML = '<option value="">Select Race</option>';
 
             races.forEach(race => {
                 const listItem = document.createElement("li");
@@ -78,6 +83,11 @@ function loadRaces() {
                 option.value = race.id;
                 option.textContent = race.name;
                 raceIdDropdown.appendChild(option);
+
+                const viewOption = document.createElement("option");
+                viewOption.value = race.id;
+                viewOption.textContent = race.name;
+                viewRaceIdDropdown.appendChild(viewOption);
             });
         })
         .catch(error => {
@@ -97,7 +107,7 @@ function loadResults() {
         // Must be inside here
         races.forEach(race => {
 
-            const raceResults = results.filter(result => result.race_id === race.id);
+            const raceResults = results.filter(result => result.race_id === raceId);
 
             if (raceResults.length > 0) {
 
@@ -183,6 +193,53 @@ raceForm.addEventListener("submit", function(event) {
     });
 });
 
+// Display results for one selected race
+function loadResultsForRace(raceId) {
+    Promise.all([
+        fetch(resultsApiUrl).then(response => response.json()),
+        fetch(racesApiUrl).then(response => response.json())
+    ])
+    .then(([results, races]) => {
+        resultList.innerHTML = "";
+
+        const selectedRace = races.find(race => race.id === Number(raceId));
+
+        // 👇 (this is where you'll later introduce your intentional bug)
+        const raceResults = results.filter(result => result.race_id === Number(raceId));
+
+        if (!selectedRace) {
+            resultList.innerHTML = "<li>Please select a valid race.</li>";
+            return;
+        }
+
+        const raceHeader = document.createElement("h3");
+        raceHeader.textContent = selectedRace.name;
+        resultList.appendChild(raceHeader);
+
+        if (raceResults.length === 0) {
+            const emptyMessage = document.createElement("li");
+            emptyMessage.textContent = "No results entered for this race yet.";
+            resultList.appendChild(emptyMessage);
+            return;
+        }
+
+        const raceResultList = document.createElement("ul");
+
+        raceResults.forEach(result => {
+            const listItem = document.createElement("li");
+
+            listItem.textContent =
+                `${result.driver_name} - Position ${result.position} - ${result.points} points`;
+
+            raceResultList.appendChild(listItem);
+        });
+
+        resultList.appendChild(raceResultList);
+    })
+    .catch(error => {
+        console.error("Error loading selected race results:", error);
+    });
+}
 
 // Handle form submission for adding a race result
 resultForm.addEventListener("submit", function(event) {
@@ -243,7 +300,21 @@ resultForm.addEventListener("submit", function(event) {
         });
 });
 
-
 // Load existing data when the page first opens
 loadRaces();
 loadResults();
+
+viewResultsButton.addEventListener("click", function() {
+    const selectedRaceId = viewRaceIdDropdown.value;
+
+    if (!selectedRaceId) {
+        alert("Please select a race first.");
+        return;
+    }
+
+    loadResultsForRace(selectedRaceId);
+});
+
+showAllResultsButton.addEventListener("click", function() {
+    loadResults();
+});
