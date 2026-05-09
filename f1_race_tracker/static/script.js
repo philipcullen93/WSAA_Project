@@ -11,10 +11,11 @@ const resultForm = document.getElementById("resultForm");
 const resultList = document.getElementById("resultList");
 const raceIdDropdown = document.getElementById("raceId");
 
-// View Race Results from Dropdown Menu
+// Get references to view results controls
 const viewRaceIdDropdown = document.getElementById("viewRaceId");
 const viewResultsButton = document.getElementById("viewResultsButton");
-const showAllResultsButton = document.getElementById("showAllResultsButton")
+const showAllResultsButton = document.getElementById("showAllResultsButton");
+
 
 // Fetch all races from the Flask API and display them
 function loadRaces() {
@@ -24,7 +25,7 @@ function loadRaces() {
             // Clear existing race list before rebuilding it
             raceList.innerHTML = "";
 
-            // Clear and rebuild dropdown used when adding race results
+            // Clear and rebuild dropdowns that use race data
             raceIdDropdown.innerHTML = '<option value="">Select Race</option>';
             viewRaceIdDropdown.innerHTML = '<option value="">Select Race</option>';
 
@@ -84,6 +85,7 @@ function loadRaces() {
                 option.textContent = race.name;
                 raceIdDropdown.appendChild(option);
 
+                // Add race to dropdown used for filtering results
                 const viewOption = document.createElement("option");
                 viewOption.value = race.id;
                 viewOption.textContent = race.name;
@@ -95,62 +97,156 @@ function loadRaces() {
         });
 }
 
+
+// Fetch all race results from the Flask API and group them by race
 function loadResults() {
     Promise.all([
         fetch(resultsApiUrl).then(response => response.json()),
         fetch(racesApiUrl).then(response => response.json())
     ])
     .then(([results, races]) => {
-
+        // Clear existing results before rebuilding the section
         resultList.innerHTML = "";
 
-        // Must be inside here
+        // Loop through each race so results can be grouped under race names
         races.forEach(race => {
+            // Get only the results that belong to this race
+            const raceResults = results.filter(result => result.race_id === race.id);
 
-            const raceResults = results.filter(result => result.race_id === Number(raceId));
-
+            // Only display races that have at least one result
             if (raceResults.length > 0) {
-
+                // Create a heading for the race
                 const raceHeader = document.createElement("h3");
                 raceHeader.textContent = race.name;
                 resultList.appendChild(raceHeader);
 
+                // Create a list for this race's results
                 const raceResultList = document.createElement("ul");
 
                 raceResults.forEach(result => {
                     const listItem = document.createElement("li");
 
+                    // Display result details
                     const resultText = document.createElement("span");
                     resultText.textContent =
                         `${result.driver_name} - Position ${result.position} - ${result.points} points`;
 
+                    // Create a delete button for this result
                     const deleteButton = document.createElement("button");
                     deleteButton.textContent = "Delete";
 
+                    // Delete the selected result using the API
                     deleteButton.onclick = function() {
                         fetch(`${resultsApiUrl}/${result.id}`, {
                             method: "DELETE"
                         })
                         .then(response => response.json())
-                        .then(() => loadResults());
+                        .then(() => {
+                            // Reload results after deleting
+                            loadResults();
+                        })
+                        .catch(error => {
+                            console.error("Error deleting result:", error);
+                        });
                     };
 
+                    // Add result text and button to the list item
                     listItem.appendChild(resultText);
                     listItem.appendChild(document.createTextNode(" "));
                     listItem.appendChild(deleteButton);
 
+                    // Add the result item to this race's result list
                     raceResultList.appendChild(listItem);
                 });
 
+                // Add this race's result list to the page
                 resultList.appendChild(raceResultList);
             }
         });
-
     })
     .catch(error => {
         console.error("Error loading results:", error);
     });
 }
+
+
+// Display results for one selected race
+function loadResultsForRace(raceId) {
+    Promise.all([
+        fetch(resultsApiUrl).then(response => response.json()),
+        fetch(racesApiUrl).then(response => response.json())
+    ])
+    .then(([results, races]) => {
+        // Clear existing results before showing the selected race
+        resultList.innerHTML = "";
+
+        // Find the selected race by ID
+        const selectedRace = races.find(race => race.id === Number(raceId));
+
+        if (!selectedRace) {
+            resultList.innerHTML = "<li>Please select a valid race.</li>";
+            return;
+        }
+
+        // Get only the results linked to the selected race
+        const raceResults = results.filter(result => result.race_id === Number(raceId));
+
+        // Display selected race name as a heading
+        const raceHeader = document.createElement("h3");
+        raceHeader.textContent = selectedRace.name;
+        resultList.appendChild(raceHeader);
+
+        // Show message if the selected race has no results
+        if (raceResults.length === 0) {
+            const emptyMessage = document.createElement("li");
+            emptyMessage.textContent = "No results entered for this race yet.";
+            resultList.appendChild(emptyMessage);
+            return;
+        }
+
+        // Create a list for selected race results
+        const raceResultList = document.createElement("ul");
+
+        raceResults.forEach(result => {
+            const listItem = document.createElement("li");
+
+            // Display result details
+            const resultText = document.createElement("span");
+            resultText.textContent =
+                `${result.driver_name} - Position ${result.position} - ${result.points} points`;
+
+            // Create delete button for selected race view
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+
+            deleteButton.onclick = function() {
+                fetch(`${resultsApiUrl}/${result.id}`, {
+                    method: "DELETE"
+                })
+                .then(response => response.json())
+                .then(() => {
+                    // Reload selected race results after deleting
+                    loadResultsForRace(raceId);
+                })
+                .catch(error => {
+                    console.error("Error deleting result:", error);
+                });
+            };
+
+            listItem.appendChild(resultText);
+            listItem.appendChild(document.createTextNode(" "));
+            listItem.appendChild(deleteButton);
+
+            raceResultList.appendChild(listItem);
+        });
+
+        resultList.appendChild(raceResultList);
+    })
+    .catch(error => {
+        console.error("Error loading selected race results:", error);
+    });
+}
+
 
 // Handle form submission for adding or editing a race
 raceForm.addEventListener("submit", function(event) {
@@ -193,53 +289,6 @@ raceForm.addEventListener("submit", function(event) {
     });
 });
 
-// Display results for one selected race
-function loadResultsForRace(raceId) {
-    Promise.all([
-        fetch(resultsApiUrl).then(response => response.json()),
-        fetch(racesApiUrl).then(response => response.json())
-    ])
-    .then(([results, races]) => {
-        resultList.innerHTML = "";
-
-        const selectedRace = races.find(race => race.id === Number(raceId));
-
-        // 👇 (this is where you'll later introduce your intentional bug)
-        const raceResults = results.filter(result => result.race_id === Number(raceId));
-
-        if (!selectedRace) {
-            resultList.innerHTML = "<li>Please select a valid race.</li>";
-            return;
-        }
-
-        const raceHeader = document.createElement("h3");
-        raceHeader.textContent = selectedRace.name;
-        resultList.appendChild(raceHeader);
-
-        if (raceResults.length === 0) {
-            const emptyMessage = document.createElement("li");
-            emptyMessage.textContent = "No results entered for this race yet.";
-            resultList.appendChild(emptyMessage);
-            return;
-        }
-
-        const raceResultList = document.createElement("ul");
-
-        raceResults.forEach(result => {
-            const listItem = document.createElement("li");
-
-            listItem.textContent =
-                `${result.driver_name} - Position ${result.position} - ${result.points} points`;
-
-            raceResultList.appendChild(listItem);
-        });
-
-        resultList.appendChild(raceResultList);
-    })
-    .catch(error => {
-        console.error("Error loading selected race results:", error);
-    });
-}
 
 // Handle form submission for adding a race result
 resultForm.addEventListener("submit", function(event) {
@@ -289,7 +338,13 @@ resultForm.addEventListener("submit", function(event) {
                 console.log(data);
 
                 resultForm.reset();
-                loadResults();
+
+                // If a race is currently selected in the filter, reload that view
+                if (viewRaceIdDropdown.value) {
+                    loadResultsForRace(viewRaceIdDropdown.value);
+                } else {
+                    loadResults();
+                }
             })
             .catch(error => {
                 console.error("Error adding result:", error);
@@ -300,10 +355,8 @@ resultForm.addEventListener("submit", function(event) {
         });
 });
 
-// Load existing data when the page first opens
-loadRaces();
-loadResults();
 
+// View only the results for the selected race
 viewResultsButton.addEventListener("click", function() {
     const selectedRaceId = viewRaceIdDropdown.value;
 
@@ -315,6 +368,14 @@ viewResultsButton.addEventListener("click", function() {
     loadResultsForRace(selectedRaceId);
 });
 
+
+// Show all race results again
 showAllResultsButton.addEventListener("click", function() {
+    viewRaceIdDropdown.value = "";
     loadResults();
 });
+
+
+// Load existing data when the page first opens
+loadRaces();
+loadResults();
