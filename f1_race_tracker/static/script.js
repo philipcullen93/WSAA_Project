@@ -14,7 +14,7 @@ const raceIdDropdown = document.getElementById("raceId");
 // View Race Results from Dropdown Menu
 const viewRaceIdDropdown = document.getElementById("viewRaceId");
 const viewResultsButton = document.getElementById("viewResultsButton");
-const showAllResultsButton = document.getElementById("showAllResultsButton");
+const showAllResultsButton = document.getElementById("showAllResultsButton")
 
 // Fetch all races from the Flask API and display them
 function loadRaces() {
@@ -107,7 +107,7 @@ function loadResults() {
         // Must be inside here
         races.forEach(race => {
 
-            const raceResults = results.filter(result => result.race_id === raceId);
+            const raceResults = results.filter(result => result.race_id === Number(raceId));
 
             if (raceResults.length > 0) {
 
