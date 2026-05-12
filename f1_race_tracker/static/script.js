@@ -22,7 +22,6 @@ function loadRaces() {
     fetch(racesApiUrl)
         .then(response => response.json())
         .then(races => {
-            // Clear existing race list before rebuilding it
             raceList.innerHTML = "";
 
             // Clear and rebuild dropdowns that use race data
@@ -32,7 +31,6 @@ function loadRaces() {
             races.forEach(race => {
                 const listItem = document.createElement("li");
 
-                // Display race details
                 const raceText = document.createElement("span");
                 raceText.textContent = `${race.name} - ${race.location} - ${race.date}`;
 
@@ -45,7 +43,6 @@ function loadRaces() {
                     document.getElementById("location").value = race.location;
                     document.getElementById("date").value = race.date;
 
-                    // Store race ID so the form knows it should update, not create
                     raceForm.setAttribute("data-edit-id", race.id);
                 };
 
@@ -60,8 +57,6 @@ function loadRaces() {
                     .then(response => response.json())
                     .then(data => {
                         console.log(data);
-
-                        // Reload both lists because deleting a race may also affect results
                         loadRaces();
                         loadResults();
                     })
@@ -70,7 +65,6 @@ function loadRaces() {
                     });
                 };
 
-                // Add race text and buttons to the page
                 listItem.appendChild(raceText);
                 listItem.appendChild(document.createTextNode(" "));
                 listItem.appendChild(editButton);
@@ -98,6 +92,58 @@ function loadRaces() {
 }
 
 
+// Fill the result form for editing
+function prepareResultEdit(result) {
+    document.getElementById("raceId").value = result.race_id;
+    document.getElementById("driverName").value = result.driver_name;
+    document.getElementById("position").value = result.position;
+    document.getElementById("points").value = result.points;
+
+    // Store result ID so the form knows it should update, not create
+    resultForm.setAttribute("data-edit-id", result.id);
+}
+
+
+// Create one displayed result item with Edit and Delete buttons
+function createResultListItem(result, reloadFunction) {
+    const listItem = document.createElement("li");
+
+    const resultText = document.createElement("span");
+    resultText.textContent =
+        `${result.driver_name} - Position ${result.position} - ${result.points} points`;
+
+    const editButton = document.createElement("button");
+    editButton.textContent = "Edit";
+    editButton.onclick = function() {
+        prepareResultEdit(result);
+    };
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+
+    deleteButton.onclick = function() {
+        fetch(`${resultsApiUrl}/${result.id}`, {
+            method: "DELETE"
+        })
+        .then(response => response.json())
+        .then(() => {
+            reloadFunction();
+        })
+        .catch(error => {
+            console.error("Error deleting result:", error);
+        });
+    };
+
+    listItem.appendChild(resultText);
+    listItem.appendChild(document.createTextNode(" "));
+    listItem.appendChild(editButton);
+    listItem.appendChild(document.createTextNode(" "));
+    listItem.appendChild(deleteButton);
+
+    return listItem;
+}
+
+
 // Fetch all race results from the Flask API and group them by race
 function loadResults() {
     Promise.all([
@@ -105,61 +151,23 @@ function loadResults() {
         fetch(racesApiUrl).then(response => response.json())
     ])
     .then(([results, races]) => {
-        // Clear existing results before rebuilding the section
         resultList.innerHTML = "";
 
-        // Loop through each race so results can be grouped under race names
         races.forEach(race => {
-            // Get only the results that belong to this race
             const raceResults = results.filter(result => result.race_id === race.id);
 
-            // Only display races that have at least one result
             if (raceResults.length > 0) {
-                // Create a heading for the race
                 const raceHeader = document.createElement("h3");
                 raceHeader.textContent = race.name;
                 resultList.appendChild(raceHeader);
 
-                // Create a list for this race's results
                 const raceResultList = document.createElement("ul");
 
                 raceResults.forEach(result => {
-                    const listItem = document.createElement("li");
-
-                    // Display result details
-                    const resultText = document.createElement("span");
-                    resultText.textContent =
-                        `${result.driver_name} - Position ${result.position} - ${result.points} points`;
-
-                    // Create a delete button for this result
-                    const deleteButton = document.createElement("button");
-                    deleteButton.textContent = "Delete";
-
-                    // Delete the selected result using the API
-                    deleteButton.onclick = function() {
-                        fetch(`${resultsApiUrl}/${result.id}`, {
-                            method: "DELETE"
-                        })
-                        .then(response => response.json())
-                        .then(() => {
-                            // Reload results after deleting
-                            loadResults();
-                        })
-                        .catch(error => {
-                            console.error("Error deleting result:", error);
-                        });
-                    };
-
-                    // Add result text and button to the list item
-                    listItem.appendChild(resultText);
-                    listItem.appendChild(document.createTextNode(" "));
-                    listItem.appendChild(deleteButton);
-
-                    // Add the result item to this race's result list
+                    const listItem = createResultListItem(result, loadResults);
                     raceResultList.appendChild(listItem);
                 });
 
-                // Add this race's result list to the page
                 resultList.appendChild(raceResultList);
             }
         });
@@ -177,10 +185,8 @@ function loadResultsForRace(raceId) {
         fetch(racesApiUrl).then(response => response.json())
     ])
     .then(([results, races]) => {
-        // Clear existing results before showing the selected race
         resultList.innerHTML = "";
 
-        // Find the selected race by ID
         const selectedRace = races.find(race => race.id === Number(raceId));
 
         if (!selectedRace) {
@@ -188,15 +194,12 @@ function loadResultsForRace(raceId) {
             return;
         }
 
-        // Get only the results linked to the selected race
         const raceResults = results.filter(result => result.race_id === Number(raceId));
 
-        // Display selected race name as a heading
         const raceHeader = document.createElement("h3");
         raceHeader.textContent = selectedRace.name;
         resultList.appendChild(raceHeader);
 
-        // Show message if the selected race has no results
         if (raceResults.length === 0) {
             const emptyMessage = document.createElement("li");
             emptyMessage.textContent = "No results entered for this race yet.";
@@ -204,38 +207,12 @@ function loadResultsForRace(raceId) {
             return;
         }
 
-        // Create a list for selected race results
         const raceResultList = document.createElement("ul");
 
         raceResults.forEach(result => {
-            const listItem = document.createElement("li");
-
-            // Display result details
-            const resultText = document.createElement("span");
-            resultText.textContent =
-                `${result.driver_name} - Position ${result.position} - ${result.points} points`;
-
-            // Create delete button for selected race view
-            const deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete";
-
-            deleteButton.onclick = function() {
-                fetch(`${resultsApiUrl}/${result.id}`, {
-                    method: "DELETE"
-                })
-                .then(response => response.json())
-                .then(() => {
-                    // Reload selected race results after deleting
-                    loadResultsForRace(raceId);
-                })
-                .catch(error => {
-                    console.error("Error deleting result:", error);
-                });
-            };
-
-            listItem.appendChild(resultText);
-            listItem.appendChild(document.createTextNode(" "));
-            listItem.appendChild(deleteButton);
+            const listItem = createResultListItem(result, function() {
+                loadResultsForRace(raceId);
+            });
 
             raceResultList.appendChild(listItem);
         });
@@ -258,10 +235,8 @@ raceForm.addEventListener("submit", function(event) {
         date: document.getElementById("date").value
     };
 
-    // Check if the form is editing an existing race
     const editId = raceForm.getAttribute("data-edit-id");
 
-    // Use PUT if editing, otherwise use POST to create a new race
     const url = editId ? `${racesApiUrl}/${editId}` : racesApiUrl;
     const method = editId ? "PUT" : "POST";
 
@@ -276,11 +251,9 @@ raceForm.addEventListener("submit", function(event) {
     .then(data => {
         console.log(data);
 
-        // Reset form and remove edit mode
         raceForm.reset();
         raceForm.removeAttribute("data-edit-id");
 
-        // Reload data shown on page
         loadRaces();
         loadResults();
     })
@@ -290,7 +263,7 @@ raceForm.addEventListener("submit", function(event) {
 });
 
 
-// Handle form submission for adding a race result
+// Handle form submission for adding or editing a race result
 resultForm.addEventListener("submit", function(event) {
     event.preventDefault();
 
@@ -301,7 +274,8 @@ resultForm.addEventListener("submit", function(event) {
         points: Number(document.getElementById("points").value)
     };
 
-    // Extra validation in JavaScript before sending data to Flask
+    const editId = resultForm.getAttribute("data-edit-id");
+
     if (resultData.position < 1) {
         alert("Position must be 1 or higher.");
         return;
@@ -312,18 +286,19 @@ resultForm.addEventListener("submit", function(event) {
         return;
     }
 
-    // Check existing results before adding a new one
     fetch(resultsApiUrl)
         .then(response => response.json())
         .then(existingResults => {
             const duplicatePosition = existingResults.some(result =>
                 result.race_id === resultData.race_id &&
-                result.position === resultData.position
+                result.position === resultData.position &&
+                result.id !== Number(editId)
             );
 
             const duplicatePoints = existingResults.some(result =>
                 result.race_id === resultData.race_id &&
-                result.points === resultData.points
+                result.points === resultData.points &&
+                result.id !== Number(editId)
             );
 
             if (duplicatePosition) {
@@ -336,8 +311,11 @@ resultForm.addEventListener("submit", function(event) {
                 return;
             }
 
-            fetch(resultsApiUrl, {
-                method: "POST",
+            const url = editId ? `${resultsApiUrl}/${editId}` : resultsApiUrl;
+            const method = editId ? "PUT" : "POST";
+
+            fetch(url, {
+                method: method,
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -348,8 +326,8 @@ resultForm.addEventListener("submit", function(event) {
                 console.log(data);
 
                 resultForm.reset();
+                resultForm.removeAttribute("data-edit-id");
 
-                // If a race is currently selected in the filter, reload that view
                 if (viewRaceIdDropdown.value) {
                     loadResultsForRace(viewRaceIdDropdown.value);
                 } else {
@@ -357,7 +335,7 @@ resultForm.addEventListener("submit", function(event) {
                 }
             })
             .catch(error => {
-                console.error("Error adding result:", error);
+                console.error("Error saving result:", error);
             });
         })
         .catch(error => {
