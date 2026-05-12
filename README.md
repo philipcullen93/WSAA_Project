@@ -89,12 +89,10 @@ Navigate to http://127.0.0.1:5000/ in a web browser.
 
 # Limitations
 - No user authentication
-- Race result editing is available through the API but not through the frontend
 - The application uses local SQLite storage
 - The frontend is designed primarily for desktop use
 
 # Future Improvements
-- Add race analytics such as total points per driver, championship standings, constructor points and standings, and fastest lap time
-- Improve responsive design for mobile devices
+- Add race additional analytics such as total points per driver, championship standings, constructor points and standings, and fastest lap times
 - Integrate FastF1 API to import live Formula 1 data
-- Link FastF1 data to racers and to display lap times, telemetry, and other data analysis features.
+- Link FastF1 data to racers and to display lap times, telemetry, and more complex data analysis features.
