@@ -321,8 +321,18 @@ resultForm.addEventListener("submit", function(event) {
                 result.position === resultData.position
             );
 
+            const duplicatePoints = existingResults.some(result =>
+                result.race_id === resultData.race_id &&
+                result.points === resultData.points
+            );
+
             if (duplicatePosition) {
                 alert("This position has already been entered for this race.");
+                return;
+            }
+
+            if (duplicatePoints) {
+                alert("These points have already been entered for this race.");
                 return;
             }
 
