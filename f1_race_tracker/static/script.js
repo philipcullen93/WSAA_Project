@@ -16,6 +16,12 @@ const viewRaceIdDropdown = document.getElementById("viewRaceId");
 const viewResultsButton = document.getElementById("viewResultsButton");
 const showAllResultsButton = document.getElementById("showAllResultsButton");
 
+// Get references to analytics display elements
+const totalRaces = document.getElementById("totalRaces");
+const totalResults = document.getElementById("totalResults");
+const topDriver = document.getElementById("topDriver");
+const averagePoints = document.getElementById("averagePoints");
+
 
 // Fetch all races from the Flask API and display them
 function loadRaces() {
@@ -59,6 +65,7 @@ function loadRaces() {
                         console.log(data);
                         loadRaces();
                         loadResults();
+                        loadAnalytics();
                     })
                     .catch(error => {
                         console.error("Error deleting race:", error);
@@ -224,6 +231,52 @@ function loadResultsForRace(raceId) {
     });
 }
 
+// Load simple analytics based on current races and results
+function loadAnalytics() {
+    Promise.all([
+        fetch(racesApiUrl).then(response => response.json()),
+        fetch(resultsApiUrl).then(response => response.json())
+    ])
+    .then(([races, results]) => {
+        totalRaces.textContent = races.length;
+        totalResults.textContent = results.length;
+
+        if (results.length === 0) {
+            topDriver.textContent = "N/A";
+            averagePoints.textContent = "0";
+            return;
+        }
+
+        let driverPoints = {};
+
+        results.forEach(result => {
+            if (!driverPoints[result.driver_name]) {
+                driverPoints[result.driver_name] = 0;
+            }
+
+            driverPoints[result.driver_name] += result.points;
+        });
+
+        let topDriverName = "";
+        let topDriverPoints = -1;
+
+        for (const driver in driverPoints) {
+            if (driverPoints[driver] > topDriverPoints) {
+                topDriverName = driver;
+                topDriverPoints = driverPoints[driver];
+            }
+        }
+
+        const totalPoints = results.reduce((sum, result) => sum + result.points, 0);
+        const average = totalPoints / results.length;
+
+        topDriver.textContent = `${topDriverName} (${topDriverPoints} points)`;
+        averagePoints.textContent = average.toFixed(2);
+    })
+    .catch(error => {
+        console.error("Error loading analytics:", error);
+    });
+}
 
 // Handle form submission for adding or editing a race
 raceForm.addEventListener("submit", function(event) {
@@ -256,6 +309,7 @@ raceForm.addEventListener("submit", function(event) {
 
         loadRaces();
         loadResults();
+        loadAnalytics();
     })
     .catch(error => {
         console.error("Error saving race:", error);
@@ -332,6 +386,7 @@ resultForm.addEventListener("submit", function(event) {
                     loadResultsForRace(viewRaceIdDropdown.value);
                 } else {
                     loadResults();
+                    loadAnalytics();
                 }
             })
             .catch(error => {
@@ -361,9 +416,11 @@ viewResultsButton.addEventListener("click", function() {
 showAllResultsButton.addEventListener("click", function() {
     viewRaceIdDropdown.value = "";
     loadResults();
+    loadAnalytics();
 });
 
 
 // Load existing data when the page first opens
 loadRaces();
 loadResults();
+loadAnalytics();
