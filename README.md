@@ -53,6 +53,13 @@ The project utilises:
 - CSS
 - JavaScript
 
+## Live Application
+The application is live on pythonanywhere, please find it through the link below
+
+https://philipcullen93.pythonanywhere.com
+
+Alternatively, below are instructions on how to run it locally.
+
 # How to Run Locally
 
 ## 1. Clone the Repository
