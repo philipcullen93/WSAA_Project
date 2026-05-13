@@ -29,6 +29,9 @@ function loadRaces() {
         .then(response => response.json())
         .then(races => {
             raceList.innerHTML = "";
+            if (races.length === 0) {
+                raceList.innerHTML = "<li>No races added yet.</li>";
+}
 
             // Clear and rebuild dropdowns that use race data
             raceIdDropdown.innerHTML = '<option value="">Select Race</option>';
@@ -43,6 +46,7 @@ function loadRaces() {
                 // Edit button fills the race form with existing data
                 const editButton = document.createElement("button");
                 editButton.textContent = "Edit";
+                editButton.classList.add("edit-button");
 
                 editButton.onclick = function() {
                     document.getElementById("name").value = race.name;
@@ -55,8 +59,12 @@ function loadRaces() {
                 // Delete button removes the race using the API
                 const deleteButton = document.createElement("button");
                 deleteButton.textContent = "Delete";
+                deleteButton.classList.add("delete-button");
 
                 deleteButton.onclick = function() {
+                    if (!confirm("Are you sure you want to delete this race?")) {
+                        return;
+                    }
                     fetch(`${racesApiUrl}/${race.id}`, {
                         method: "DELETE"
                     })
@@ -121,14 +129,19 @@ function createResultListItem(result, reloadFunction) {
 
     const editButton = document.createElement("button");
     editButton.textContent = "Edit";
+    editButton.classList.add("edit-button");
     editButton.onclick = function() {
         prepareResultEdit(result);
     };
 
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "Delete";
+    deleteButton.classList.add("delete-button");
 
     deleteButton.onclick = function() {
+        if (!confirm("Are you sure you want to delete this result?")) {
+            return;
+        }
         fetch(`${resultsApiUrl}/${result.id}`, {
             method: "DELETE"
         })
@@ -150,7 +163,6 @@ function createResultListItem(result, reloadFunction) {
     return listItem;
 }
 
-
 // Fetch all race results from the Flask API and group them by race
 function loadResults() {
     Promise.all([
@@ -159,6 +171,9 @@ function loadResults() {
     ])
     .then(([results, races]) => {
         resultList.innerHTML = "";
+        if (results.length === 0) {
+            resultList.innerHTML = "<li>No results available.</li>";
+}
 
         races.forEach(race => {
             const raceResults = results.filter(result => result.race_id === race.id);

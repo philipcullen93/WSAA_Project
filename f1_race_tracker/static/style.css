@@ -119,3 +119,18 @@ hr {
         box-sizing: border-box;
     }
 }
+
+/* Edit buttons */
+button.edit-button {
+    background-color: #007bff;
+}
+
+/* Delete buttons */
+button.delete-button {
+    background-color: #d71920;
+}
+
+/* Save/Add buttons */
+button.save-button {
+    background-color: #28a745;
+}
