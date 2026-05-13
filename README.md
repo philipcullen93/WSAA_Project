@@ -95,4 +95,54 @@ Navigate to http://127.0.0.1:5000/ in a web browser.
 # Future Improvements
 - Add race additional analytics such as total points per driver, championship standings, constructor points and standings, and fastest lap times
 - Integrate FastF1 API to import live Formula 1 data
-- Link FastF1 data to racers and to display lap times, telemetry, and more complex data analysis features.
+- Link FastF1 data to racers and to display lap times, telemetry, and more complex data analysis features
+- Add circuit layouts and information for selected races
+- Add detailed information on drivers such as teams, qualifying and race results, and championship results
+
+# References
+# References
+
+1. Flask Documentation – Routing, request handling, JSON responses, and template rendering.  
+   Available at: https://flask.palletsprojects.com/
+
+2. SQLAlchemy Documentation – ORM models, database sessions, SQLite integration, and CRUD operations.  
+   Available at: https://docs.sqlalchemy.org/
+
+3. Flask-CORS Documentation – Cross-Origin Resource Sharing configuration for Flask APIs.  
+   Available at: https://flask-cors.readthedocs.io/
+
+4. Mozilla Developer Network (MDN) – JavaScript Fetch API used for asynchronous API requests between frontend and backend.  
+   Available at: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+
+5. Mozilla Developer Network (MDN) – JavaScript DOM manipulation and event handling used for interactive frontend functionality.  
+   Available at: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+
+6. Mozilla Developer Network (MDN) – HTML forms, semantic structure, buttons, lists, and input elements.  
+   Available at: https://developer.mozilla.org/en-US/docs/Web/HTML
+
+7. Mozilla Developer Network (MDN) – CSS styling, responsive design, layout spacing, button styling, and media queries.  
+   Available at: https://developer.mozilla.org/en-US/docs/Web/CSS
+
+8. SQLite Documentation – Local relational database used for race and result storage.  
+   Available at: https://www.sqlite.org/docs.html
+
+9. Python Documentation – General Python syntax, functions, dictionaries, loops, and virtual environments.  
+   Available at: https://docs.python.org/3/
+
+10. Git Documentation – Version control, commits, branching concepts, and repository management.  
+    Available at: https://git-scm.com/doc
+
+11. GitHub Documentation – Remote repositories, pushing commits, and repository hosting.  
+    Available at: https://docs.github.com/
+
+12. PythonAnywhere Documentation – Flask web application deployment and WSGI configuration.  
+    Available at: https://help.pythonanywhere.com/
+
+13. FastF1 Documentation – Considered as a potential future external Formula 1 data integration source.  
+    Available at: https://theoehrly.github.io/Fast-F1/
+
+14. W3Schools JavaScript Tutorials – Referenced for additional examples related to forms, arrays, filtering, and DOM updates.  
+    Available at: https://www.w3schools.com/js/
+
+15. W3Schools CSS Tutorials – Referenced for additional frontend styling examples and responsive layouts.  
+    Available at: https://www.w3schools.com/css/
