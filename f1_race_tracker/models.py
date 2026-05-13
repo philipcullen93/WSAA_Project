@@ -1,8 +1,12 @@
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
+import os
 
 # Connect to the SQLite database file
-engine = create_engine("sqlite:///database.db", echo=True)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, "database.db")
+
+engine = create_engine(f"sqlite:///{db_path}", echo=True)
 
 # Base class for database models
 Base = declarative_base()
@@ -44,4 +48,4 @@ session = Session()
 
 # TEMPORARY: Create tables in the database
 # Run this (Base.metadata.create_all(engine)) once, then this line is deleted
-# Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)
