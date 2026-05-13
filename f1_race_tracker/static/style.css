@@ -1,62 +1,121 @@
+/* General page styling */
 body {
-    font-family: Arial, sans-serif;
-    max-width: 900px;
+    font-family: Arial, Helvetica, sans-serif;
+    max-width: 1000px;
     margin: 40px auto;
     padding: 20px;
     background-color: #f4f4f4;
     color: #222;
 }
 
+/* Main page title */
 h1 {
     text-align: center;
     color: #d71920;
+    font-size: 2.5rem;
+    margin-bottom: 30px;
 }
 
+/* Section headings */
 h2 {
+    color: #222;
+    border-bottom: 3px solid #d71920;
+    padding-bottom: 8px;
     margin-top: 30px;
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 5px;
 }
 
-form {
+/* Race result headings */
+h3 {
+    color: #d71920;
+    margin-top: 20px;
+}
+
+/* Forms and main sections */
+form,
+#analyticsSection,
+#raceList,
+#resultList {
     background: white;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Inputs and dropdowns */
 input,
 select {
-    padding: 8px;
-    margin: 5px;
-    width: 180px;
+    padding: 10px;
+    margin: 6px;
+    min-width: 180px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
 }
 
+/* Buttons */
 button {
-    padding: 8px 12px;
-    margin: 5px;
-    cursor: pointer;
+    padding: 10px 14px;
+    margin: 6px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     background-color: #222;
     color: white;
+    cursor: pointer;
+    font-weight: bold;
 }
 
+/* Button hover */
 button:hover {
     background-color: #d71920;
 }
 
+/* Lists */
 ul {
-    background: white;
-    padding: 15px 25px;
-    border-radius: 8px;
+    list-style-type: none;
+    padding-left: 0;
 }
 
+/* List items */
 li {
-    margin-bottom: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
 }
 
-h3 {
-    margin-top: 20px;
-    color: #333;
+/* Remove border from final list item */
+li:last-child {
+    border-bottom: none;
+}
+
+/* Analytics section */
+#analyticsSection p {
+    font-size: 1.1rem;
+    margin: 10px 0;
+}
+
+#analyticsSection span {
+    font-weight: bold;
+    color: #d71920;
+}
+
+/* Horizontal separator */
+hr {
+    border: none;
+    height: 2px;
+    background-color: #ddd;
+    margin: 35px 0;
+}
+
+/* Mobile-friendly layout */
+@media (max-width: 700px) {
+    body {
+        margin: 10px;
+        padding: 10px;
+    }
+
+    input,
+    select,
+    button {
+        width: 100%;
+        box-sizing: border-box;
+    }
 }
