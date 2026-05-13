@@ -8,6 +8,8 @@ F1 Race Tracker is a full-stack web application built using Flask, SQLAlchemy, S
 
 The application allows users to manage Formula 1 races and race results through a browser-based interface. Users can create, edit, delete, and view races, as well as add and manage driver results linked to specific races.
 
+For the project testing, race results for the Top 3 postions in each race were added.
+
 The project utilises:
 - REST API development using Flask
 - Database relationships using SQLAlchemy
@@ -91,6 +93,7 @@ Navigate to http://127.0.0.1:5000/ in a web browser.
 - No user authentication
 - The application uses local SQLite storage
 - The frontend is designed primarily for desktop use
+- Currently setup only for races, does not allow user to add practice or qualifying information
 
 # Future Improvements
 - Add race additional analytics such as total points per driver, championship standings, constructor points and standings, and fastest lap times
@@ -99,7 +102,6 @@ Navigate to http://127.0.0.1:5000/ in a web browser.
 - Add circuit layouts and information for selected races
 - Add detailed information on drivers such as teams, qualifying and race results, and championship results
 
-# References
 # References
 
 1. Flask Documentation – Routing, request handling, JSON responses, and template rendering.  
